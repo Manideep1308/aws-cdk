@@ -20,7 +20,7 @@ vpc = ec2.Vpc(self, "TheVPC",
     igw_id = vpc.internet_gateway_id		
 		
     subnet_configuration=[ec2.SubnetConfiguration(          		
-        cidr_mask=24		
+        cidr_mask=24,		
         name="PUB",		
         subnet_type=ec2.SubnetType.PUBLIC,		
         availability_zones=["us-east-1a"]		
