@@ -13,8 +13,8 @@ class EC2InstanceStack(Stack):
         super().__init__(scope, id, **kwargs)		
 		
 # VPC		
-vpc = ec2.Vpc(self, "TheVPC",		
-    cidr="10.0.0.0/16",		
+vpc = ec2.Vpc("TheVPC",		
+    CidrBlock="10.0.0.0/16",		
     max_azs=1,		
     nat_gateways=1,		
     igw_id = vpc.internet_gateway_id		
@@ -31,18 +31,19 @@ vpc = ec2.Vpc(self, "TheVPC",
         availability_zones=["us-east-1a"]		
     )		
     ]		
-)		
+)
+		
 		
 #  Security group rules		
-my_security_group_without_inline_rules = ec2.SecurityGroup(self, "SecurityGroup",		
-    vpc=vpc,		
+my_security_group_without_inline_rules = ec2.SecurityGroup("SecurityGroup",		
+    vpc=vpc,       		
     description="Allow ssh access to ec2 instances",		
     allow_all_outbound=True,		
     disable_inline_rules=True		
 )		
 		
 # Instance Role and SSM Managed Policy		
-role = iam.Role(self, "InstanceSSM", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))		
+role = iam.Role("InstanceSSM", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))		
 role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore"))		
 		
 # AMI		
@@ -54,7 +55,7 @@ storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE
 )		
 		
 # Instance		
-instance = ec2.Instance(self, "Instance",		
+instance = ec2.Instance("Instance",		
 instance_type=ec2.InstanceType("t3.nano"),		
 machine_image=amzn_linux,		
 vpc = vpc,		
