@@ -23,7 +23,7 @@ class BeroStack(Stack):
         #     visibility_timeout=Duration.seconds(300),
         # )
         vpc = ec2.Vpc(
-            self, 'MyVpc',
+            self, 'MyVpc', vpc_name="VPC1",
             cidr="10.13.0.0/21",
             max_azs=2,
             nat_gateways=0,
@@ -36,76 +36,74 @@ class BeroStack(Stack):
 
         )
     
-        #  Security group rules
-        # my_security_group_without_inline_rules = ec2.SecurityGroup(self, "SecurityGroup",
-        #     vpc=vpc,
-        #     description="Allow ssh access to ec2 instances",
-        #     allow_all_outbound=True,
-        #     disable_inline_rules=True
-        #     )
+        # Security group 1
+        sec_group1 = ec2.SecurityGroup(self, "iac_sg1", security_group_name="sec1",
+            vpc=vpc,
+            allow_all_outbound=True,
+            )
         
-
-        # # Security group rules 2
-
-        # #create a new security group
-        # sec_group = ec2.SecurityGroup(
-        #     self,
-        #     "sec-group-allow-ssh",
-        #     vpc=vpc,
-        #     allow_all_outbound=True,
-        #     )
-
-        # # add a new ingress rule to allow port 22 to internal hosts
-        # sec_group.add_ingress_rule(
-        #     peer=ec2.Peer.ipv4('10.0.0.0/16'),
-        #     description="Allow SSH connection", 
-        #     connection=ec2.Port.tcp(22)
-        #     )
-
-        # # Instance Role and SSM Managed Policy
-        # role = iam.Role(self, "InstanceSSM", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))
-        # role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")) 
+        # add a new ingress rule to allow port 22 to internal hosts
+        sec_group1.add_ingress_rule(
+            peer=ec2.Peer.ipv4('0.0.0.0/0'),
+            description="Allow SSH connection", 
+            connection=ec2.Port.tcp(22)
+            )
 
 
-        # AMI
-        # amzn_linux = ec2.MachineImage.latest_amazon_linux(
-        #     generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-        #     edition=ec2.AmazonLinuxEdition.STANDARD,
-        #     virtualization=ec2.AmazonLinuxVirt.HVM,
-        #     storage=ec2.AmazonLinuxStorage.GENERAL_PURPOSE
-        #     )
-   
+        # Security group 2
+        #create a new security group
+        sec_group2 = ec2.SecurityGroup(self, "iac_sg2", security_group_name="sec2",
+            vpc=vpc,
+            allow_all_outbound=True,
+            )
 
-        # ubuntu = ec2.MachineImage.from_ssm_parameter('/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id')
-           
-        # ubuntu= ec2.MachineImage.generic_linux({
-        #     'us-east-1' : "ami-0059b7cd9f67d8050"
-        # })
-       
-      
-       
+        # add a new ingress rule to allow port 22 to internal hosts
+        sec_group2.add_ingress_rule(
+            peer=ec2.Peer.ipv4('0.0.0.0/0'),
+            description="Allow SSH connection", 
+            connection=ec2.Port.tcp(22)
+            )
+
+        # Instance Role and SSM Managed Policy
+        role = iam.Role(self, "InstanceSSM", assumed_by=iam.ServicePrincipal("ec2.amazonaws.com"))
+        role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AmazonSSMManagedInstanceCore")) 
+
+
+        # ubuntu image
+        ub_image = ec2.MachineImage.from_ssm_parameter('/aws/service/canonical/ubuntu/server/focal/stable/current/amd64/hvm/ebs-gp2/ami-id')
+
         # Instance1
-        # instance = ec2.Instance(self, "Instance",
-        #     instance_type=ec2.InstanceType("t3.nano"),
-        #     machine_image=ubuntu,
-        #     block_devices=[
-        #         ec2.BlockDevice(device_name="/dev/sda1", volume=ec2.BlockDeviceVolume.ebs(50)), 
-        #         ec2.BlockDevice(device_name="/dev/sdm", volume=ec2.BlockDeviceVolume.ebs(100))
-        #     ],
-        #     vpc = vpc,
-        #     role = role,
-        #     security_group=my_security_group_without_inline_rules
-        #     )
+        instance = ec2.Instance(self, "IaCInstance1",
+            instance_type=ec2.InstanceType("t2.large"),
+            machine_image=ub_image,
+            block_devices=[
+                ec2.BlockDevice(device_name="/dev/sda1", volume=ec2.BlockDeviceVolume.ebs(50))
+            ],
+            vpc = vpc,            
+            vpc_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PUBLIC
+             ),
+            role=role,
+            security_group=sec_group1,
+            key_name = "iacvpc"
+            )
 
-         # Instance 2
-        # instance = ec2.Instance(self, "Instance2",
-        #      instance_type=ec2.InstanceType("t3.nano"),
-        #      machine_image=ec2.AmazonLinuxImage(generation=ec2.AmazonLinuxGeneration.AMAZON_LINUX_2),
-        #      block_devices=[ec2.BlockDevice(device_name="/dev/sdm", volume=ec2.BlockDeviceVolume.ebs(500))],
-             
-        #      vpc=vpc,
-        #      role=role,
-        #      key_name=
-        # )
+        # Instance 2
+        instance = ec2.Instance(self, "IaCInstance2",
+            instance_type=ec2.InstanceType("t2.large"),
+            machine_image=ub_image,
+            block_devices=[
+                ec2.BlockDevice(device_name="/dev/sda1", volume=ec2.BlockDeviceVolume.ebs(50))                
+            ],
+            vpc = vpc,
+            vpc_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PUBLIC
+             ),
+            role=role,
+            security_group=sec_group2,
+            key_name = "iacvpc"
+        )
+
+
 
        
