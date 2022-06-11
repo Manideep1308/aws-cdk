@@ -1,5 +1,6 @@
 
 
+
 from aws_cdk import (
     # Duration,
     Size,
@@ -23,7 +24,7 @@ class BeroStack(Stack):
         #     visibility_timeout=Duration.seconds(300),
         # )
         vpc = ec2.Vpc(
-            self, 'MyVpc', vpc_name="VPC1",
+            self, 'MyVpc', vpc_name="VPC2",
             cidr="10.13.0.0/21",
             max_azs=2,
             nat_gateways=0,
@@ -37,14 +38,14 @@ class BeroStack(Stack):
         )
     
         # Security group 1
-        sec_group1 = ec2.SecurityGroup(self, "iac_sg1", security_group_name="sec1",
+        sec_group1 = ec2.SecurityGroup(self, "iac_sg1", security_group_name="sec1", 
             vpc=vpc,
             allow_all_outbound=True,
             )
         
         # add a new ingress rule to allow port 22 to internal hosts
         sec_group1.add_ingress_rule(
-            peer=ec2.Peer.ipv4('0.0.0.0/0'),
+            peer=ec2.Peer.ipv4('0.0.0.0/0'), 
             description="Allow SSH connection", 
             connection=ec2.Port.tcp(22)
             )

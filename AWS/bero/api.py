@@ -2,8 +2,11 @@
 import os
 from flask import Flask, jsonify, request
 
-
+from flask_cors import CORS
+ 
+ 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/name', methods=['POST'])
 def method():
@@ -11,7 +14,11 @@ def method():
 
    stacknames = request.args.get('stacknames')
    os.system('/bin/bash --rcfile sh bero.sh '+ str(stacknames))
-   return 'do synthesize'
+   return (
+     '{\n'
+     '   "status" : 200 \n'
+     '}\n'
+   )
 
 
 @app.route('/append', methods=['POST'])
@@ -30,7 +37,11 @@ def index():
     contents = "".join(contents)
     f.write(contents)
 
-    return 'appended a new line with updated paramaters'      
+    return (
+    '{\n'
+     '   "status" : 200 \n'
+     '}\n'
+    )     
 
 if __name__=='__main__':   
     app.run(port=7001, host='0.0.0.0')
