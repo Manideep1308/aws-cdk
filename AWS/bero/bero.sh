@@ -3,9 +3,9 @@ echo "activating virtual environment"
 
 source .venv/bin/activate
 
-echo "do aws configure"
+# echo "do aws configure"
 
-aws configure
+# aws configure
 
 
 # cdk bootstrap  
