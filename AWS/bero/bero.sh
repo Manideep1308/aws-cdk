@@ -13,4 +13,4 @@ cdk bootstrap
 
 # echo "cdk deploy"
 
-cdk deploy $@
+cdk deploy $@ --require-approval never
