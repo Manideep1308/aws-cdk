@@ -31,7 +31,7 @@ def index():
 
   with open('/app/app.py','r') as f:
     contents = f.readlines()
-  contents.insert(50, str(classname)+ "(app, '" + str(stackname)+ "', env=cdk.Environment(account= '" + str(accountnumber) +"', region='" + str(region)+ "'))\n")
+  contents.insert(48, str(classname)+ "(app, '" + str(stackname)+ "', env=cdk.Environment(account= '" + str(accountnumber) +"', region='" + str(region)+ "'))\n")
   contents.insert(6, "from " + str(path) + " import " + str(classname) +"\n")
   with open('/app/app.py','w') as f:
     contents = "".join(contents)
